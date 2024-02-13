@@ -34,6 +34,8 @@ public class HeroKnight : MonoBehaviour {
         else if (Input.GetKeyDown("q"))
             m_animator.SetTrigger("Hurt");
 
+        /*
+
         //Attack
         else if(Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f)
         {
@@ -54,6 +56,10 @@ public class HeroKnight : MonoBehaviour {
             m_timeSinceAttack = 0.0f;
         }
 
+        */
+
+        /*
+
         // Block
         else if (Input.GetMouseButtonDown(1))
         {
@@ -63,6 +69,8 @@ public class HeroKnight : MonoBehaviour {
 
         else if (Input.GetMouseButtonUp(1))
             m_animator.SetBool("IdleBlock", false);
+
+        */
 
         //Idle
         else
