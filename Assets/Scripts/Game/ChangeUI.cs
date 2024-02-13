@@ -6,17 +6,16 @@ public class ChangeUI : MonoBehaviour
 {
     [SerializeField] private GameObject doorScreenUI; //reference to door screen ui
     [SerializeField] private GameObject battleScreenUI; //reference to battle screen ui
-    [SerializeField] private GameObject doors; //reference to doors in door screen
-    [SerializeField] private GameObject playerDoors; //reference to player sprite in door screen
+    [SerializeField] private GameObject doorScreen; //reference to door screen and sprites in it
+    [SerializeField] private GameObject battleScreen; //reference to battle screen and sprites in it
 
     [SerializeField] private bool inBattle; //bool to check if player is in battle or not
 
     private void Start()
     {
-        doorScreenUI.SetActive(true); //show door screen ui - game starts on door screen
-        battleScreenUI.SetActive(false); //hide battle screen ui
+        inBattle = true; //start with "in battle" state so i can toggle to the correct ui (load the door screen, hide battle screen)
 
-        inBattle = false; //player is not in battle
+        ToggleUI(); //toggle ui to show correct ui/screen
     }
 
     public void ToggleUI()
@@ -24,22 +23,23 @@ public class ChangeUI : MonoBehaviour
         if(inBattle)
         {
             inBattle = false; //player no longer in battle
-            doorScreenUI.SetActive(true); //show door screen ui
+            
             battleScreenUI.SetActive(false); //hide battle screen ui
-            doors.SetActive(true); //show doors
-            playerDoors.SetActive(true); //show player sprite in door room
+            battleScreen.SetActive(false); //hide battle screen
 
-            //hide player and enemies in battle room
+            doorScreenUI.SetActive(true); //show door screen ui
+            doorScreen.SetActive(true); //show door screen
+            
         }
         else
         {
             inBattle = true; //player now in battle
-            doorScreenUI.SetActive(false); //hide door screen ui
-            battleScreenUI.SetActive(true); //show battle screen ui
-            doors.SetActive(false); //hide doors
-            playerDoors.SetActive(false); //hide player sprite in door room
 
-            //show player and enemies in battle room
+            doorScreenUI.SetActive(false); //hide door screen ui
+            doorScreen.SetActive(false); //hide door screen
+
+            battleScreenUI.SetActive(true); //show battle screen ui
+            battleScreen.SetActive(true); //show battle screen
         }
     }
 }
