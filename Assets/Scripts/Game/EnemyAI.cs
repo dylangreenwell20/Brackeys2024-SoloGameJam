@@ -6,19 +6,17 @@ public class EnemyAI : MonoBehaviour
 {
     public Enemy enemy; //get enemy scriptable object
 
-    public Transform slimePosition; //position of slime
-    public Transform skeletonPosition; //position of skeleton
-
+    public int maxHealth; //max health of enemy
     public int health; //health of enemy
     public int defence; //defence of enemy
     public int damage; //damage of enemy
 
     private void Start()
     {
-        enemy = null;
-        health = 0;
-        defence = 0;
-        damage = 0;
+        health = enemy.health; //get enemy health
+        maxHealth = health; //set max health to health value
+        defence = enemy.defence; //get enemy defence
+        damage = enemy.damage; //get enemy damage
     }
 
     //active enemy - have all sprite positions contain each enemy - just only show the current enemy that is loaded
