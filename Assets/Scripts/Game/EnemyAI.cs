@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
 
     public bool isDead; //is enemy dead
 
-    private void Start()
+    private void Awake()
     {
         enemyName = enemy.name; //get enemy name
         health = enemy.health; //get enemy health

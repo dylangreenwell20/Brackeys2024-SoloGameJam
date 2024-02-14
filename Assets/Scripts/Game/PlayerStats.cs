@@ -14,7 +14,7 @@ public class PlayerStats : MonoBehaviour
     public bool isDead; //is player dead
     public bool isBlocking; //is player blocking
 
-    private void Start()
+    private void Awake()
     {
         maxHealth = 100;
         health = maxHealth;
