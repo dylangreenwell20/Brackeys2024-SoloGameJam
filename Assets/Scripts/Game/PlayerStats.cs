@@ -12,17 +12,19 @@ public class PlayerStats : MonoBehaviour
     public int depth;
 
     public bool isDead; //is player dead
+    public bool isBlocking; //is player blocking
 
     private void Start()
     {
         maxHealth = 100;
         health = maxHealth;
-        attack = 10;
-        defence = 10;
+        attack = 5;
+        defence = 5;
         actionPoints = 5;
         depth = 0;
 
         isDead = false;
+        isBlocking = false;
     }
 
     public bool TakeDamage(int damage)

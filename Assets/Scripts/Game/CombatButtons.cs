@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -13,12 +14,30 @@ public class CombatButtons : MonoBehaviour
     [NonSerialized] public GameObject playerSprite;
     [NonSerialized] public GameObject enemySprite;
 
+    private ChangeUI changeUI;
+    private PlayerStats playerStats;
+    private EnemyAI enemyAI;
+
+    [SerializeField] private int damage;
+    [SerializeField] private int defence;
+
     public bool isPlayer;
+    public bool isPlayerDead;
+    public bool isEnemyDead;
     public bool spritesCollected;
 
     private void Start()
     {
         isPlayer = true; //player starts always
+        isPlayerDead = false;
+        isEnemyDead = false;
+        damage = 0;
+        defence = 0;
+
+        changeUI = this.GetComponent<ChangeUI>(); //get change ui script
+        playerStats = this.GetComponent<PlayerStats>(); //get player stats script
+        enemyAI = this.GetComponent<EnemyAI>(); //get enemy ai script
+
         playerSprite = GetSprites(true); //get player sprite
         enemySprite = GetSprites(false); //get enemy sprite
 
@@ -31,36 +50,97 @@ public class CombatButtons : MonoBehaviour
 
     public void Attack()
     {
-        //int damage, bool isPlayer;
+        if(isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
 
         //check if player or enemy is attacking
 
-        if (isPlayer)
+        if (isPlayer) //if it is players turn
         {
-            //damage enemy
+            playerStats.isBlocking = false; //player not blocking anymore
+
+            damage = playerStats.attack; //get player attack
+            defence = enemyAI.defence; //get enemy defence
+
+            //def is taken off of damage - e.g. 15 damage with 10 defence results in the attack dealing 5 damage
+
+            int calculatedDamage = damage - defence; //calculate damage with defence reduction
+
+            if(calculatedDamage < 0) //if damage is less than 0
+            {
+                calculatedDamage = 0; //set damage to 0 to avoid negative damage (which heals instead of damaging)
+            }
+
+            isEnemyDead = enemyAI.TakeDamage(calculatedDamage); //run take damage method in enemy ai script using calculated damage
+
+            changeUI.UpdateStatsBattleUI(); //update battle ui
 
             playerSprite.GetComponent<Animator>().SetTrigger("Attack1"); //play attack animation
 
-            isPlayer = false;
+            if (isEnemyDead)
+            {
+                //play smoke animation?
+
+                enemySprite.SetActive(false); //hide enemy
+            }
+
+            isPlayer = false; //no longer players turn
         }
 
-        else
+        else //else if it is enemys turn
         {
-            //check if blocking / damage player
+            damage = enemyAI.damage; //get enemy damage
+            defence = playerStats.defence; //get player defence
 
-            //get enemy damage
+            //Debug.Log(damage);
+            //Debug.Log(defence);
 
-            //run damage method in PlayerStats
+            //def is taken off of damage - e.g. 15 damage with 10 defence results in the attack dealing 5 damage
 
+            if (playerStats.isBlocking) //if blocking
+            {
+                //Debug.Log(defence);
+                defence *= 2; //defence multiplied by 2
+                //Debug.Log(defence);
+            }
 
-            playerSprite.GetComponent<Animator>().SetTrigger("Hurt"); //play hurt animation
+            int calculatedDamage = damage - defence; //apply defence reduction to damage
 
-            isPlayer = true;
+            if(calculatedDamage < 0) //if damage is less than 0
+            {
+                calculatedDamage = 0; //set damage to 0 (to avoid negative damage healing the player)
+            }
+
+            isPlayerDead = playerStats.TakeDamage(calculatedDamage); //run take damage method in player stats using calculated damage
+
+            changeUI.UpdateStatsBattleUI(); //update battle UI
+
+            if (isPlayerDead) //if player is dead
+            {
+                //death/game over code
+
+                playerSprite.GetComponent<Animator>().SetTrigger("Death"); //play death animation
+            }
+            else //else if player is alive still
+            {
+                playerSprite.GetComponent<Animator>().SetTrigger("Hurt"); //play hurt animation
+            }
+
+            isPlayer = true; //now it is players turn
         }
     }
 
     public void Block()
     {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        playerStats.isBlocking = true; //player is blocking
+
         playerSprite.GetComponent<Animator>().SetTrigger("Block"); //play block animation
         playerSprite.GetComponent<Animator>().SetBool("IdleBlock", true); //play idle block animation
     }

@@ -19,6 +19,8 @@ public class ChangeUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI healthTextBattle; //reference to health text in battle UI
     [SerializeField] private TextMeshProUGUI actionPointTextBattle; //reference to action point text in battle UI
+    [SerializeField] private TextMeshProUGUI enemyNameText; //reference to enemy name text in battle UI
+    [SerializeField] private TextMeshProUGUI enemyHealthText; //reference to enemy health text in battle UI
 
     [SerializeField] private bool inBattle; //bool to check if player is in battle or not
 
@@ -75,5 +77,7 @@ public class ChangeUI : MonoBehaviour
     {
         healthTextBattle.text = ("Health: " + playerStats.health + "/" + playerStats.maxHealth); //update text box to show health values
         actionPointTextBattle.text = ("Action Points: " + playerStats.actionPoints);
+        enemyNameText.text = (enemyStats.enemyName);
+        enemyHealthText.text = (enemyStats.health + "/" +  enemyStats.maxHealth);
     }
 }
