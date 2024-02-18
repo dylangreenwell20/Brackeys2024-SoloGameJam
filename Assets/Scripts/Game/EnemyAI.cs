@@ -39,6 +39,18 @@ public class EnemyAI : MonoBehaviour
         return false;
     }
 
+    public void ResetEnemy()
+    {
+        //reset enemy stats on death
+
+        health = enemy.health;
+        maxHealth = health;
+        defence = enemy.defence;
+        damage = enemy.damage;
+
+        isDead = false;
+    }
+
     //active enemy - have all sprite positions contain each enemy - just only show the current enemy that is loaded
     //rooms with multiple enemies will just show the enemy at the top of the stack/front of the array
 }

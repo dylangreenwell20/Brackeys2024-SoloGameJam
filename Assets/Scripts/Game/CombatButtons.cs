@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -17,9 +18,15 @@ public class CombatButtons : MonoBehaviour
     private ChangeUI changeUI;
     private PlayerStats playerStats;
     private EnemyAI enemyAI;
+    private RoomType roomType;
+
+    [SerializeField] private string enemyName;
 
     [SerializeField] private int damage;
     [SerializeField] private int defence;
+    [SerializeField] private int criticalChance;
+
+    [SerializeField] private float damageMultiplier;
 
     public bool isPlayer;
     public bool isPlayerDead;
@@ -37,6 +44,9 @@ public class CombatButtons : MonoBehaviour
         changeUI = this.GetComponent<ChangeUI>(); //get change ui script
         playerStats = this.GetComponent<PlayerStats>(); //get player stats script
         enemyAI = this.GetComponent<EnemyAI>(); //get enemy ai script
+        roomType = this.GetComponent<RoomType>(); //get room type script
+
+        enemyName = enemyAI.enemyName; //get enemy name
 
         playerSprite = GetSprites(true); //get player sprite
         enemySprite = GetSprites(false); //get enemy sprite
@@ -50,6 +60,9 @@ public class CombatButtons : MonoBehaviour
 
     public void Attack()
     {
+        isPlayerDead = playerStats.isDead;
+        isEnemyDead = enemyAI.isDead;
+
         if(isPlayerDead | isEnemyDead) //if player or enemy is dead
         {
             return;
@@ -63,6 +76,24 @@ public class CombatButtons : MonoBehaviour
 
             damage = playerStats.attack; //get player attack
             defence = enemyAI.defence; //get enemy defence
+
+            //random number between 0.6 and 1.4 for random damage multiplier
+
+            damageMultiplier = UnityEngine.Random.Range(0.6f, 1.4f);
+
+            float tempdamage = (float)damage * damageMultiplier;
+
+            damage = Mathf.RoundToInt(tempdamage); //round float to int and save as damage
+
+            //10% chance to critical hit
+
+            criticalChance = UnityEngine.Random.Range(1, 10); //generate random number between 1 and 10
+
+            if (criticalChance == 1) //if number equal to 1 (10% chance)
+            {
+                damage = damage * 2; //double damage
+                Debug.Log("CRITICAL HIT FOR " + damage + " DAMAGE!!!");
+            }
 
             //def is taken off of damage - e.g. 15 damage with 10 defence results in the attack dealing 5 damage
 
@@ -84,6 +115,18 @@ public class CombatButtons : MonoBehaviour
                 //play smoke animation?
 
                 enemySprite.SetActive(false); //hide enemy
+
+                playerStats.depth += 1; //increase depth
+
+                roomType.GenerateRooms(); //generate new rooms
+
+                enemyAI.ResetEnemy(); //reset enemy
+
+                changeUI.ToggleUI(); //change to door scene
+
+                isPlayer = true;
+
+                return;
             }
 
             isPlayer = false; //no longer players turn
@@ -101,9 +144,7 @@ public class CombatButtons : MonoBehaviour
 
             if (playerStats.isBlocking) //if blocking
             {
-                //Debug.Log(defence);
                 defence *= 2; //defence multiplied by 2
-                //Debug.Log(defence);
             }
 
             int calculatedDamage = damage - defence; //apply defence reduction to damage
@@ -164,7 +205,7 @@ public class CombatButtons : MonoBehaviour
         }
         else //else if method needs to get enemy sprite
         {
-            GameObject enemySprite = enemy.transform.GetChild(0).gameObject; //get current enemy sprite
+            GameObject enemySprite = enemy.transform.Find(enemyName).gameObject; //get current enemy sprite
 
             if (enemySprite != null) //if enemy sprite was found
             {
