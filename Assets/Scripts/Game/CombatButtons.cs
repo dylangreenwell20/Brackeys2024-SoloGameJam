@@ -114,7 +114,9 @@ public class CombatButtons : MonoBehaviour
             {
                 //play smoke animation?
 
-                enemySprite.SetActive(false); //hide enemy
+                enemy.transform.Find(enemyAI.enemyName).gameObject.SetActive(false); //hide enemy
+
+                //enemySprite.SetActive(false); //hide enemy
 
                 playerStats.depth += 1; //increase depth
 
@@ -206,6 +208,8 @@ public class CombatButtons : MonoBehaviour
 
     public GameObject GetSprites(bool isPlayerSprite)
     {
+        enemyName = enemyAI.enemyName;
+
         if(isPlayerSprite) //if method needs to get player sprite
         {
             GameObject playerSprite = player.transform.GetChild(0).gameObject; //get player sprite

@@ -18,7 +18,7 @@ public class ChangeUI : MonoBehaviour
     [SerializeField] private GameObject emptyScreen; //reference to empty screen and sprites in it
     [SerializeField] private GameObject chestScreen; //reference to chest screen and sprites in it
 
-    [SerializeField] private GameObject enemyPositons; //reference to enemy positions object with enemy sprites in it
+    [SerializeField] private GameObject enemyPositions; //reference to enemy positions object with enemy sprites in it
 
     [SerializeField] private TextMeshProUGUI healthTextDoors; //reference to health text in doors UI
     [SerializeField] private TextMeshProUGUI depthTextDoors; //reference to depth text in doors UI
@@ -101,14 +101,23 @@ public class ChangeUI : MonoBehaviour
             doorScreenUI.SetActive(false); //hide door screen ui
             doorScreen.SetActive(false); //hide door screen
 
-            UpdateStatsBattleUI(); //update battle ui
+            //UpdateStatsBattleUI(); //update battle ui
 
             battleScreenUI.SetActive(true); //show battle screen ui
             battleScreen.SetActive(true); //show battle screen
 
             //spawn correct enemy
 
-            enemyPositons.transform.Find(enemyStats.enemyName).gameObject.SetActive(true); //spawn enemy
+            enemyStats.enemy = roomType.CombatGenerator(); //generate enemy based on depth
+
+            enemyStats.ResetEnemy(); //reset enemy stats to new enemy
+
+            enemyNameText = enemyPositions.transform.Find(enemyStats.enemyName + "/Enemy Stats/Background/Name").gameObject.GetComponent<TextMeshProUGUI>();
+            enemyHealthText = enemyPositions.transform.Find(enemyStats.enemyName + "/Enemy Stats/Background/Health").gameObject.GetComponent<TextMeshProUGUI>();
+
+            UpdateStatsBattleUI();
+
+            enemyPositions.transform.Find(enemyStats.enemyName).gameObject.SetActive(true); //spawn enemy
         }
         else if(roomIndex == 2) //empty room
         {
@@ -178,6 +187,7 @@ public class ChangeUI : MonoBehaviour
     {
         healthTextBattle.text = ("Health: " + playerStats.health + "/" + playerStats.maxHealth); //update text box to show health values
         actionPointTextBattle.text = ("Action Points: " + playerStats.actionPoints);
+        Debug.Log(enemyStats.enemyName);
         enemyNameText.text = (enemyStats.enemyName);
         enemyHealthText.text = (enemyStats.health + "/" +  enemyStats.maxHealth);
     }

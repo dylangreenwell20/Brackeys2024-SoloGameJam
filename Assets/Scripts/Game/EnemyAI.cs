@@ -17,11 +17,13 @@ public class EnemyAI : MonoBehaviour
 
     private void Awake()
     {
+        /*
         enemyName = enemy.name; //get enemy name
         health = enemy.health; //get enemy health
         maxHealth = health; //set max health to health value
         defence = enemy.defence; //get enemy defence
         damage = enemy.damage; //get enemy damage
+        */
     }
 
     public bool TakeDamage(int damage)
@@ -43,6 +45,7 @@ public class EnemyAI : MonoBehaviour
     {
         //reset enemy stats on death
 
+        enemyName = enemy.name;
         health = enemy.health;
         maxHealth = health;
         defence = enemy.defence;
