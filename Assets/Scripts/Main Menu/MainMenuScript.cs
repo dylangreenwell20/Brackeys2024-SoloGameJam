@@ -35,6 +35,8 @@ public class MainMenuScript : MonoBehaviour
 
         yield return new WaitForSeconds(transitionTime); //wait for transition time (essentially wait for animation to finish)
 
+        transition.SetTrigger("StartToIdle"); //set menu to permanent idle state
+
         SceneManager.LoadScene(levelIndex); //load  game scene
     }
 

@@ -115,6 +115,8 @@ public class ChangeUI : MonoBehaviour
             doorScreenUI.SetActive(false); //hide door screen ui
             doorScreen.SetActive(false); //hide door screen
 
+            animator.SetTrigger("LoadRoom");
+
             emptyRoomActionPointText.text = ("Action Points: " + playerStats.actionPoints);
 
             emptyScreenUI.SetActive(true);
@@ -124,6 +126,8 @@ public class ChangeUI : MonoBehaviour
         {
             doorScreenUI.SetActive(false); //hide door screen ui
             doorScreen.SetActive(false); //hide door screen
+
+            animator.SetTrigger("ChestIdle");
 
             chestScreenUI.SetActive(true);
             chestScreen.SetActive(true);
@@ -191,6 +195,6 @@ public class ChangeUI : MonoBehaviour
 
         ToggleUI(0); //change ui to door room
 
-        animator.SetTrigger("ChestIdle"); //go back to idle chest state
+        animator.SetTrigger("ChestOpenToIdle"); //go back to idle chest state
     }
 }
