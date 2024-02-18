@@ -13,6 +13,7 @@ public class RoomType : MonoBehaviour
 
     public Enemy slime; //reference to slime
     public Enemy skeleton; //reference to skeleton
+    public Enemy spider; //reference to spider
 
     private PlayerStats playerStats; //reference to player stats
 
@@ -45,25 +46,25 @@ public class RoomType : MonoBehaviour
         //pick how many enemies to spawn in the room and what the type of enemy is
         //higher the depth, more likely to see harder enemies
 
-        //depth 0-3 - 20% skeleton, 80% slime
-        //depth 4-8 - 50% skeleton, 50% slime
-
-        //RETURN THIS METHOD AS A ENEMY TYPE SO I CAN JUST RETURN SCRIPTABLE OBJECT ENEMIES INSTEAD OF USING RESOURCES SEARCH
+        //depth 0-6 - 20% skeleton, 80% slime
+        //depth 7-12 - 50% skeleton, 50% slime
+        //depth 13-20 - 30% spider, 70% skeleton
+        //depth 21+ - 50% spider, 50% skeleton
 
         int depth = playerStats.depth;
 
         int random = UnityEngine.Random.Range(1, 10);
 
-        if (depth <= 3)
+        if (depth <= 6)
         {
-            if(random <= 5) //if number hits 20% chance for skeleton
+            if(random <= 2) //if number hits 20% chance for skeleton
             {
                 return skeleton; //return skeleton
             }
 
             return slime; //return slime
         }
-        else if (depth <= 8)
+        else if (depth <= 12)
         {
             if(random <= 5)
             {
@@ -72,9 +73,23 @@ public class RoomType : MonoBehaviour
 
             return slime; //return slime
         }
+        else if(depth <= 20)
+        {
+            if(random <= 3) //30% chance of spider
+            {
+                return spider;
+            }
+
+            return skeleton;
+        }
         else
         {
-            return null; //error
+            if(random <= 5) //50% chance for skeleton or spider
+            {
+                return spider;
+            }
+            
+            return skeleton;
         }
     }
 }

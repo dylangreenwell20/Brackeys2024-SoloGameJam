@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CombatButtons : MonoBehaviour
 {
@@ -15,10 +16,23 @@ public class CombatButtons : MonoBehaviour
     [NonSerialized] public GameObject playerSprite;
     [NonSerialized] public GameObject enemySprite;
 
+    [SerializeField] private GameObject battleOptions;
+    [SerializeField] private GameObject attackOptions;
+    [SerializeField] private GameObject defendOptions;
+    [SerializeField] private GameObject healOptions;
+
+    [SerializeField] private Button slashButton;
+    [SerializeField] private Button smashButton;
+    [SerializeField] private Button blockButton;
+    [SerializeField] private Button parryButton;
+    [SerializeField] private Button healPotButton;
+    [SerializeField] private Button healSkillButton;
+
     private ChangeUI changeUI;
     private PlayerStats playerStats;
     private EnemyAI enemyAI;
     private RoomType roomType;
+    private DeathUI deathUI;
 
     [SerializeField] private string enemyName;
 
@@ -32,6 +46,7 @@ public class CombatButtons : MonoBehaviour
     public bool isPlayerDead;
     public bool isEnemyDead;
     public bool spritesCollected;
+    public bool isParrying;
 
     private void Start()
     {
@@ -45,6 +60,7 @@ public class CombatButtons : MonoBehaviour
         playerStats = this.GetComponent<PlayerStats>(); //get player stats script
         enemyAI = this.GetComponent<EnemyAI>(); //get enemy ai script
         roomType = this.GetComponent<RoomType>(); //get room type script
+        deathUI = this.GetComponent<DeathUI>();
 
         enemyName = enemyAI.enemyName; //get enemy name
 
@@ -58,7 +74,7 @@ public class CombatButtons : MonoBehaviour
         }
     }
 
-    public void Attack()
+    public void Attack(bool abilityUsed)
     {
         isPlayerDead = playerStats.isDead;
         isEnemyDead = enemyAI.isDead;
@@ -67,6 +83,13 @@ public class CombatButtons : MonoBehaviour
         {
             return;
         }
+
+        slashButton.interactable = false;
+        smashButton.interactable = false;
+        blockButton.interactable = false;
+        parryButton.interactable = false;
+        healPotButton.interactable = false;
+        healSkillButton.interactable = false;
 
         //check if player or enemy is attacking
 
@@ -84,6 +107,13 @@ public class CombatButtons : MonoBehaviour
             float tempdamage = (float)damage * damageMultiplier;
 
             damage = Mathf.RoundToInt(tempdamage); //round float to int and save as damage
+
+            //if ability was used
+
+            if (abilityUsed)
+            {
+                damage = damage * 2;
+            }
 
             //10% chance to critical hit
 
@@ -108,15 +138,22 @@ public class CombatButtons : MonoBehaviour
 
             changeUI.UpdateStatsBattleUI(); //update battle ui
 
-            playerSprite.GetComponent<Animator>().SetTrigger("Attack1"); //play attack animation
+            if (abilityUsed)
+            {
+                playerSprite.GetComponent<Animator>().SetTrigger("Attack2");
+            }
+            else
+            {
+                playerSprite.GetComponent<Animator>().SetTrigger("Attack1"); //play attack animation
+            }
 
             if (isEnemyDead)
             {
-                //play smoke animation?
+                isEnemyDead = false;
 
                 enemy.transform.Find(enemyAI.enemyName).gameObject.SetActive(false); //hide enemy
 
-                //enemySprite.SetActive(false); //hide enemy
+                StartCoroutine(EnemyDeathTime());
 
                 playerStats.depth += 1; //increase depth
 
@@ -124,13 +161,37 @@ public class CombatButtons : MonoBehaviour
 
                 enemyAI.ResetEnemy(); //reset enemy
 
+                ResetCombatUI();
+
                 changeUI.ToggleUI(0); //change to door scene
 
                 isPlayer = true;
+                playerStats.isBlocking = false;
+
+                slashButton.interactable = true;
+                smashButton.interactable = true;
+                blockButton.interactable = true;
+                parryButton.interactable = true;
+                healPotButton.interactable = true;
+                healSkillButton.interactable = true;
 
                 return;
             }
 
+            if (isParrying)
+            {
+                slashButton.interactable = true;
+                smashButton.interactable = true;
+                blockButton.interactable = true;
+                parryButton.interactable = true;
+                healPotButton.interactable = true;
+                healSkillButton.interactable = true;
+
+                playerStats.isBlocking = false;
+                isParrying = false;
+            }
+
+            playerStats.isBlocking = false;
             isPlayer = false; //no longer players turn
         }
 
@@ -183,13 +244,131 @@ public class CombatButtons : MonoBehaviour
                 //death/game over code
 
                 playerSprite.GetComponent<Animator>().SetTrigger("Death"); //play death animation
+
+                slashButton.interactable = true;
+                smashButton.interactable = true;
+                blockButton.interactable = true;
+                parryButton.interactable = true;
+                healPotButton.interactable = true;
+                healSkillButton.interactable = true;
+
+                deathUI.PlayerDead();
             }
             else //else if player is alive still
             {
                 playerSprite.GetComponent<Animator>().SetTrigger("Hurt"); //play hurt animation
+
+                slashButton.interactable = true;
+                smashButton.interactable = true;
+                blockButton.interactable = true;
+                parryButton.interactable = true;
+                healPotButton.interactable = true;
+                healSkillButton.interactable = true;
             }
 
             isPlayer = true; //now it is players turn
+        }
+    }
+
+    public void AttackButton()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        battleOptions.SetActive(false);
+        attackOptions.SetActive(true);
+    }
+
+    public void DefendButton()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        battleOptions.SetActive(false);
+        defendOptions.SetActive(true);
+    }
+
+    public void HealButton()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        battleOptions.SetActive(false);
+        healOptions.SetActive(true);
+    }
+
+    public void BackAttack()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        attackOptions.SetActive(false);
+        battleOptions.SetActive(true);
+    }
+
+    public void BackDefend()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        defendOptions.SetActive(false);
+        battleOptions.SetActive(true);
+    }
+
+    public void BackHeal()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        healOptions.SetActive(false);
+        battleOptions.SetActive(true);
+    }
+
+    public void Slash()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        Attack(false);
+
+        if (!isEnemyDead)
+        {
+            StartCoroutine(EnemyAttack());
+        }
+    }
+
+    public void Smash()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        if (playerStats.actionPoints == 0)
+        {
+            return;
+        }
+
+        playerStats.actionPoints -= 1;
+        Attack(true);
+
+        if(!isEnemyDead)
+        {
+            StartCoroutine(EnemyAttack());
         }
     }
 
@@ -204,6 +383,89 @@ public class CombatButtons : MonoBehaviour
 
         playerSprite.GetComponent<Animator>().SetTrigger("Block"); //play block animation
         playerSprite.GetComponent<Animator>().SetBool("IdleBlock", true); //play idle block animation
+
+        StartCoroutine(EnemyAttack());
+    }
+
+    public void Parry()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        playerStats.isBlocking = true; //player is blocking
+        isParrying = true;
+
+        playerStats.actionPoints -= 1;
+
+        playerSprite.GetComponent<Animator>().SetTrigger("Block"); //play block animation
+        playerSprite.GetComponent<Animator>().SetBool("IdleBlock", true); //play idle block animation
+
+        StartCoroutine(EnemyAttack());
+    }
+
+    public void HealingPotion()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        if(playerStats.healthPotions == 0)
+        {
+            return;
+        }
+
+        playerStats.healthPotions -= 1;
+        playerStats.health += 50;
+
+        if(playerStats.health > playerStats.maxHealth)
+        {
+            playerStats.health = playerStats.maxHealth;
+        }
+
+        StartCoroutine(EnemyAttack());
+    }
+
+    public void HealingSpell()
+    {
+        if (isPlayerDead | isEnemyDead) //if player or enemy is dead
+        {
+            return;
+        }
+
+        if(playerStats.actionPoints == 0)
+        {
+            return;
+        }
+
+        playerStats.actionPoints -= 1;
+        playerStats.health += 50;
+
+        if (playerStats.health > playerStats.maxHealth)
+        {
+            playerStats.health = playerStats.maxHealth;
+        }
+
+        StartCoroutine(EnemyAttack());
+    }
+
+    public void ResetEnemy()
+    {
+        enemy.transform.Find(enemyAI.enemyName).gameObject.SetActive(false); //hide enemy
+
+        roomType.GenerateRooms(); //generate new rooms
+
+        enemyAI.ResetEnemy(); //reset enemy
+    }
+
+    public void ResetCombatUI()
+    {
+        battleOptions.SetActive(true);
+        attackOptions.SetActive(false);
+        defendOptions.SetActive(false);
+        healOptions.SetActive(false);
     }
 
     public GameObject GetSprites(bool isPlayerSprite)
@@ -240,7 +502,31 @@ public class CombatButtons : MonoBehaviour
                 return null; //return null
             }
         }
+    }
 
+    IEnumerator EnemyAttack()
+    {
+        yield return new WaitForSeconds(1);
 
+        isPlayer = false;
+
+        Attack(false);
+
+        yield return new WaitForSeconds(1);
+
+        if(isParrying)
+        {
+            Attack(false);
+            isPlayer = true;
+        }
+
+        yield return new WaitForSeconds(1);
+    }
+
+    IEnumerator EnemyDeathTime()
+    {
+        yield return new WaitForSeconds(1);
+
+        Debug.Log("test");
     }
 }

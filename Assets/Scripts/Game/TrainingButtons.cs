@@ -28,7 +28,7 @@ public class TrainingButtons : MonoBehaviour
 
         playerStats.actionPoints -= 1;
 
-        playerStats.attack += 1;
+        playerStats.attack += 3;
 
         playerStats.depth += 1;
 
@@ -47,7 +47,7 @@ public class TrainingButtons : MonoBehaviour
 
         playerStats.actionPoints -= 1;
 
-        playerStats.defence += 1;
+        playerStats.defence += 3;
 
         playerStats.depth += 1;
 
@@ -66,8 +66,8 @@ public class TrainingButtons : MonoBehaviour
 
         playerStats.actionPoints -= 1;
 
-        playerStats.maxHealth += 10;
-        playerStats.health += 10;
+        playerStats.maxHealth += 20;
+        playerStats.health += 20;
 
         playerStats.depth += 1;
 
@@ -79,7 +79,7 @@ public class TrainingButtons : MonoBehaviour
     public void Rest()
     {
         playerStats.actionPoints += 1;
-        playerStats.health += 5;
+        playerStats.health += 10;
 
         if(playerStats.health > playerStats.maxHealth)
         {

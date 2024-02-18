@@ -14,4 +14,4 @@ public class Enemy : ScriptableObject
     public int damage; //damage of enemy
 }
 
-public enum EnemyType { Slime, Skeleton }
+public enum EnemyType { Slime, Skeleton, Spider }

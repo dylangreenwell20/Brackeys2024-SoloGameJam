@@ -43,4 +43,18 @@ public class PlayerStats : MonoBehaviour
 
         return false;
     }
+
+    public void ResetStats()
+    {
+        maxHealth = 100;
+        health = maxHealth;
+        attack = 5;
+        defence = 5;
+        actionPoints = 3;
+        depth = 0;
+        healthPotions = 1;
+
+        isDead = false;
+        isBlocking = false;
+    }
 }

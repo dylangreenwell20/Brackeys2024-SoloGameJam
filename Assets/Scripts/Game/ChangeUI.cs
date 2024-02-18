@@ -26,6 +26,7 @@ public class ChangeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI defenceTextDoors; //reference to defence text in doors UI
     [SerializeField] private TextMeshProUGUI actionPointTextDoors; //reference to action point text in doors UI
     [SerializeField] private TextMeshProUGUI emptyRoomActionPointText; //reference to empty room action point text in top UI
+    [SerializeField] private TextMeshProUGUI healthPotionAmountText;
 
     [SerializeField] private TextMeshProUGUI healthTextBattle; //reference to health text in battle UI
     [SerializeField] private TextMeshProUGUI actionPointTextBattle; //reference to action point text in battle UI
@@ -187,9 +188,9 @@ public class ChangeUI : MonoBehaviour
     {
         healthTextBattle.text = ("Health: " + playerStats.health + "/" + playerStats.maxHealth); //update text box to show health values
         actionPointTextBattle.text = ("Action Points: " + playerStats.actionPoints);
-        Debug.Log(enemyStats.enemyName);
         enemyNameText.text = (enemyStats.enemyName);
         enemyHealthText.text = (enemyStats.health + "/" +  enemyStats.maxHealth);
+        healthPotionAmountText.text = playerStats.healthPotions.ToString();
     }
 
     IEnumerator OpenChest()
