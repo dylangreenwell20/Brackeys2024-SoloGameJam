@@ -25,6 +25,7 @@ public class ChangeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attackTextDoors; //reference to attack text in doors UI
     [SerializeField] private TextMeshProUGUI defenceTextDoors; //reference to defence text in doors UI
     [SerializeField] private TextMeshProUGUI actionPointTextDoors; //reference to action point text in doors UI
+    [SerializeField] private TextMeshProUGUI emptyRoomActionPointText; //reference to empty room action point text in top UI
 
     [SerializeField] private TextMeshProUGUI healthTextBattle; //reference to health text in battle UI
     [SerializeField] private TextMeshProUGUI actionPointTextBattle; //reference to action point text in battle UI
@@ -113,6 +114,8 @@ public class ChangeUI : MonoBehaviour
         {
             doorScreenUI.SetActive(false); //hide door screen ui
             doorScreen.SetActive(false); //hide door screen
+
+            emptyRoomActionPointText.text = ("Action Points: " + playerStats.actionPoints);
 
             emptyScreenUI.SetActive(true);
             emptyScreen.SetActive(true);

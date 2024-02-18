@@ -21,7 +21,7 @@ public class PlayerStats : MonoBehaviour
         health = maxHealth;
         attack = 5;
         defence = 5;
-        actionPoints = 5;
+        actionPoints = 3;
         depth = 0;
         healthPotions = 1;
 

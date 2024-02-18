@@ -147,6 +147,24 @@ public class CombatButtons : MonoBehaviour
                 defence *= 2; //defence multiplied by 2
             }
 
+            //random number between 0.6 and 1.4 for random damage multiplier
+
+            damageMultiplier = UnityEngine.Random.Range(0.6f, 1.4f);
+
+            float tempdamage = (float)damage * damageMultiplier;
+
+            damage = Mathf.RoundToInt(tempdamage); //round float to int and save as damage
+
+            //10% chance to critical hit
+
+            criticalChance = UnityEngine.Random.Range(1, 10); //generate random number between 1 and 10
+
+            if (criticalChance == 1) //if number equal to 1 (10% chance)
+            {
+                damage = damage * 2; //double damage
+                Debug.Log("CRITICAL HIT FOR " + damage + " DAMAGE!!!");
+            }
+
             int calculatedDamage = damage - defence; //apply defence reduction to damage
 
             if(calculatedDamage < 0) //if damage is less than 0
