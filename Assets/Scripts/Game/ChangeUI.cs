@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using static System.TimeZoneInfo;
+using UnityEngine.SceneManagement;
+using Unity.Burst.CompilerServices;
 
 public class ChangeUI : MonoBehaviour
 {
     [SerializeField] private GameObject doorScreenUI; //reference to door screen ui
     [SerializeField] private GameObject battleScreenUI; //reference to battle screen ui
+    [SerializeField] private GameObject emptyScreenUI; //reference to empty screen ui
+    [SerializeField] private GameObject chestScreenUI; //reference to chest screen ui
     [SerializeField] private GameObject doorScreen; //reference to door screen and sprites in it
     [SerializeField] private GameObject battleScreen; //reference to battle screen and sprites in it
+    [SerializeField] private GameObject emptyScreen; //reference to empty screen and sprites in it
+    [SerializeField] private GameObject chestScreen; //reference to chest screen and sprites in it
+
     [SerializeField] private GameObject enemyPositons; //reference to enemy positions object with enemy sprites in it
 
     [SerializeField] private TextMeshProUGUI healthTextDoors; //reference to health text in doors UI
@@ -23,7 +31,8 @@ public class ChangeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI enemyNameText; //reference to enemy name text in battle UI
     [SerializeField] private TextMeshProUGUI enemyHealthText; //reference to enemy health text in battle UI
 
-    [SerializeField] private bool inBattle; //bool to check if player is in battle or not
+    public Animator animator; //reference to chest animator
+
     [SerializeField] private bool leftDoorOpened; //bool to check if player opened left door
     [SerializeField] private bool rightDoorOpened; //bool to check if player opened right door
 
@@ -33,137 +42,120 @@ public class ChangeUI : MonoBehaviour
 
     private void Start()
     {
-        inBattle = true; //start with "in battle" state so i can toggle to the correct ui (load the door screen, hide battle screen)
-
         playerStats = this.GetComponent<PlayerStats>();
         enemyStats = this.GetComponent<EnemyAI>();
         roomType = this.GetComponent<RoomType>();
 
-        ToggleUI(); //toggle ui to show correct ui/screen
+        ToggleUI(0); //toggle ui to show correct ui/screen
         UpdateStatsDoorsUI(); //update door stats UI
         UpdateStatsBattleUI(); //update battle stats UI
     }
 
     public void LeftDoorOpened()
     {
-        leftDoorOpened = true;
-        ToggleUI();
-        leftDoorOpened = false;
+        leftDoorOpened = true; //left door opened
+
+        RoomTypeList leftDoor = roomType.leftDoor; //get door type
+
+        int roomNumber = WhatRoomType(leftDoor); //get int of room index
+
+        ToggleUI(roomNumber); //toggle ui with correct room index
+
+        leftDoorOpened = false; //set to false
     }
 
     public void RightDoorOpened()
     {
-        rightDoorOpened = true;
-        ToggleUI();
-        rightDoorOpened = false;
+        rightDoorOpened = true; //right door opened
+
+        RoomTypeList rightDoor = roomType.rightDoor; //get door type
+
+        int roomNumber = WhatRoomType(rightDoor); //get int of room index
+
+        ToggleUI(roomNumber); //toggle ui with correct room index
+
+        rightDoorOpened = false; //set to false
     }
 
-    public void ToggleUI()
+    public void ToggleUI(int roomIndex)
     {
-        if(inBattle)
+        if(roomIndex == 0) //door room
         {
-            inBattle = false; //player no longer in battle
-            
             battleScreenUI.SetActive(false); //hide battle screen ui
             battleScreen.SetActive(false); //hide battle screen
+
+            emptyScreenUI.SetActive(false);
+            emptyScreen.SetActive(false);
+
+            chestScreenUI.SetActive(false);
+            chestScreen.SetActive(false);
 
             doorScreenUI.SetActive(true); //show door screen ui
             doorScreen.SetActive(true); //show door screen
 
             UpdateStatsDoorsUI(); //update player stats ui on door screen
-            
         }
-        else
+        else if(roomIndex == 1) //combat room
         {
-            inBattle = true; //player now in battle
-
             doorScreenUI.SetActive(false); //hide door screen ui
             doorScreen.SetActive(false); //hide door screen
 
-            //get what door was clicked on
+            UpdateStatsBattleUI(); //update battle ui
 
-            if(leftDoorOpened)
-            {
-                //get room type
+            battleScreenUI.SetActive(true); //show battle screen ui
+            battleScreen.SetActive(true); //show battle screen
 
+            //spawn correct enemy
 
+            enemyPositons.transform.Find(enemyStats.enemyName).gameObject.SetActive(true); //spawn enemy
+        }
+        else if(roomIndex == 2) //empty room
+        {
+            doorScreenUI.SetActive(false); //hide door screen ui
+            doorScreen.SetActive(false); //hide door screen
 
-                //display ui for that room type
+            emptyScreenUI.SetActive(true);
+            emptyScreen.SetActive(true);
+        }
+        else if (roomIndex == 3) //chest room
+        {
+            doorScreenUI.SetActive(false); //hide door screen ui
+            doorScreen.SetActive(false); //hide door screen
 
-
-
-                //combat room
-
-                UpdateStatsBattleUI(); //update battle ui
-
-                battleScreenUI.SetActive(true); //show battle screen ui
-                battleScreen.SetActive(true); //show battle screen
-
-                //spawn correct enemy
-
-                enemyPositons.transform.Find(enemyStats.enemyName).gameObject.SetActive(true); //for testing enemy spawn
-            }
-            else if(rightDoorOpened)
-            {
-                //get room type
-
-
-
-                //display ui for that room type
-
-
-
-                //combat room
-
-                UpdateStatsBattleUI(); //update battle ui
-
-                battleScreenUI.SetActive(true); //show battle screen ui
-                battleScreen.SetActive(true); //show battle screen
-
-                //spawn correct enemy
-
-                enemyPositons.transform.Find(enemyStats.enemyName).gameObject.SetActive(true); //for testing enemy spawn
-            }
+            chestScreenUI.SetActive(true);
+            chestScreen.SetActive(true);
         }
     }
 
-    public void WhatRoomType()
+    public int WhatRoomType(RoomTypeList door)
     {
-        RoomTypeList leftDoor = roomType.leftDoor;
-        RoomTypeList rightDoor = roomType.rightDoor;
+        //'which rooms to display' logic
 
-        //which rooms to display logic
-
-        if (leftDoor == RoomTypeList.Empty)
+        if(door == RoomTypeList.Combat)
         {
-            //generate empty room
+            //generate combat room
+            return 1;
         }
-        else if (leftDoor == RoomTypeList.Chest)
+        else if (door == RoomTypeList.Empty)
+        {
+            //generate Empty room
+            return 2;
+        }
+        else if (door == RoomTypeList.Chest)
         {
             //generate chest room
+            return 3;
         }
         else
         {
-            //generate combat room
-        }
-
-        if (rightDoor == RoomTypeList.Empty)
-        {
-            //generate empty room
-        }
-        else if (rightDoor == RoomTypeList.Chest)
-        {
-            //generate chest room
-        }
-        else
-        {
-            //generate combat room
+            //error
+            return -1;
         }
     }
 
     public void ChestOpened()
     {
-
+        StartCoroutine(OpenChest()); //open chest co routine
     }
 
     public void UpdateStatsDoorsUI()
@@ -181,5 +173,21 @@ public class ChangeUI : MonoBehaviour
         actionPointTextBattle.text = ("Action Points: " + playerStats.actionPoints);
         enemyNameText.text = (enemyStats.enemyName);
         enemyHealthText.text = (enemyStats.health + "/" +  enemyStats.maxHealth);
+    }
+
+    IEnumerator OpenChest()
+    {
+        animator.SetTrigger("ChestOpened"); //start chest open animation
+
+        yield return new WaitForSeconds(2); //wait for transition time (essentially wait for animation to finish)
+
+        playerStats.depth += 1; //increment depth
+        playerStats.healthPotions += 1; //add health potion
+
+        roomType.GenerateRooms(); //generate new rooms
+
+        ToggleUI(0); //change ui to door room
+
+        animator.SetTrigger("ChestIdle"); //go back to idle chest state
     }
 }

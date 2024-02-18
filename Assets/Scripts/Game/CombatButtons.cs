@@ -122,7 +122,7 @@ public class CombatButtons : MonoBehaviour
 
                 enemyAI.ResetEnemy(); //reset enemy
 
-                changeUI.ToggleUI(); //change to door scene
+                changeUI.ToggleUI(0); //change to door scene
 
                 isPlayer = true;
 

@@ -10,6 +10,7 @@ public class PlayerStats : MonoBehaviour
     public int defence;
     public int actionPoints;
     public int depth;
+    public int healthPotions;
 
     public bool isDead; //is player dead
     public bool isBlocking; //is player blocking
@@ -22,6 +23,7 @@ public class PlayerStats : MonoBehaviour
         defence = 5;
         actionPoints = 5;
         depth = 0;
+        healthPotions = 1;
 
         isDead = false;
         isBlocking = false;
